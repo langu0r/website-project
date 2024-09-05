@@ -41,7 +41,7 @@ def loginPage(request):
             messages.error(request, 'Username or password does not exist.')
 
     context = {'page':page}
-    return render(request, 'myWebsite/login_register.html', context)
+    return render(request, 'mainapp/login_register.html', context)
 
 def logoutUser(request):
     logout(request)
@@ -61,7 +61,7 @@ def registerPage(request):
         else:
             messages.error(request, 'An error occurred during registration')
 
-    return render(request, 'myWebsite/login_register.html', {'form': form})
+    return render(request, 'mainapp/login_register.html', {'form': form})
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     rooms = Room.objects.filter(
@@ -75,7 +75,7 @@ def home(request):
     room_messages = Message.objects.all()
 
     context = {'rooms': rooms, 'topics': topics, 'room_count': room_count, 'room_messages': room_messages}
-    return render(request, 'myWebsite/home.html', context)
+    return render(request, 'mainapp/home.html', context)
 
 def room(request, pk):
     room = Room.objects.get(id=pk)
@@ -91,7 +91,7 @@ def room(request, pk):
         return redirect('room', pk=room.id)
 
     context = {'room': room, 'room_messages': room_messages, 'participants': participants}
-    return render(request, 'myWebsite/room.html', context)
+    return render(request, 'mainapp/room.html', context)
 
 @login_required(login_url='login')
 def createRoom(request):
@@ -107,7 +107,7 @@ def createRoom(request):
             return redirect('home')
 
     context = {'form': form}
-    return render(request, 'myWebsite/room_form.html', context)
+    return render(request, 'mainapp/room_form.html', context)
 
 @login_required(login_url='login')
 def updateRoom(request, pk):
@@ -124,7 +124,7 @@ def updateRoom(request, pk):
             return redirect('home')
 
     context = {'form': form}
-    return render(request, 'myWebsite/room_form.html', context)
+    return render(request, 'mainapp/room_form.html', context)
 
 @login_required(login_url='login')
 def deleteRoom(request, pk):
