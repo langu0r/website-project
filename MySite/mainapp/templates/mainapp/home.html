@@ -40,7 +40,16 @@
                 <a href="{% url 'delete-room' room.id %}">Delete</a>
                 {% endif %}
                 <span>@{{room.host.username}}</span>
+
                 <h5>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></h5>
+
+                <div>
+                    <p>{{room.description}}</p>
+                    <img src="images/django.jpg" />
+
+
+                </div>
+
                 <small>{{room.topic.name}}</small>
                 <hr>
             </div>
@@ -50,16 +59,6 @@
 
     </div>
 
-    <div>
-        <h3>Recent Activity</h3>
-        <hr>
-        {% for message in room_messages %}
-            <div>
-                <small>@{{message.user}} {{message.created|timesince}}</small>
-                <p>{{message.body}}
-            </div>
-        {% endfor %}
-    </div>
 
 </div>
 
