@@ -45,7 +45,8 @@
 
                 <div>
                     <p>{{room.description}}</p>
-                    <img src="images/django.jpg" />
+                    {% load static %}
+                    <img src="{% static 'images/django.png' %}" />
 
 
                 </div>
