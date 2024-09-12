@@ -29,26 +29,24 @@
 
 
     <div>
-        <h5>{{room_count}} rooms available</h5>
+        <h5>{{room_count}} постов найдено</h5>
         <a href="{% url 'create-room' %}">Create room</a>
 
         <div>
             {% for room in rooms %}
             <div>
-                {% if request.user == room.host %}
-                <a href="{% url 'update-room' room.id %}">Edit</a>
-                <a href="{% url 'delete-room' room.id %}">Delete</a>
-                {% endif %}
-                <span>@{{room.host.username}}</span>
+                <span>@{{room.host.username}}</span> <!-- Отображаем имя автора -->
+                <small>Опубликовано: {{ room.created|date:"Y-m-d" }}</small> <!-- Отображаем дату создания -->
 
                 <h5>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></h5>
 
                 <div>
-                    <p>{{room.description}}</p>
-                    {% load static %}
-                    <img src="{% static 'images/django.png' %}" />
+                    <p>{{room.description}}</p> <!-- Отображаем описание -->
 
-
+                    {% if room.image %}
+                    <p>{{ room.image.url }}</p>
+                        <img src="{{ room.image.url | default_if_none:'#' }}" alt="Room Image" style="max-width: 100px;"> <!-- Отображаем изображение -->
+                    {% endif %}
                 </div>
 
                 <small>{{room.topic.name}}</small>

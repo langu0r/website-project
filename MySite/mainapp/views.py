@@ -95,9 +95,11 @@ def createRoom(request):
     #     return HttpResponse('You are not allowed here')
 
     if request.method == 'POST':
-        form = RoomForm(request.POST)
+        form = RoomForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            room = form.save(commit=False)
+            room.host = request.user  # Устанавливаем хоста как текущего пользователя
+            room.save()
             return redirect('home')
 
     context = {'form': form}
@@ -112,7 +114,7 @@ def updateRoom(request, pk):
         return HttpResponse('You are not allowed here')
 
     if request.method == 'POST':
-        form = RoomForm(request.POST, instance=room)
+        form = RoomForm(request.POST, request.FILES, instance=room)
         if form.is_valid():
             form.save()
             return redirect('home')
