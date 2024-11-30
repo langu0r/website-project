@@ -17,10 +17,20 @@ class Room(models.Model):
     participants = models.ManyToManyField(User, related_name='participants', blank=True)
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
-    image = models.ImageField(upload_to='uploads/', null=True, blank=True)
+    image = models.ImageField(upload_to='users/%Y/%m/%d/', null=True, blank=True)
 
     class Meta:
         ordering = ['-updated', '-created']
 
     def __str__(self):
         return self.name
+
+
+class Company(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    company_name = models.CharField(max_length=255)
+    email = models.EmailField()
+    approved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.company_name

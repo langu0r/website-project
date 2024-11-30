@@ -6,8 +6,10 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
-from .models import Room, Topic
-from .forms import RoomForm
+from django.core.mail import send_mail
+import secrets  # для генерации ключа доступа
+from .models import Room, Topic, Company
+from .forms import RoomForm, CompanyRegistrationForm
 
 # Create your views here.
 
@@ -47,21 +49,38 @@ def logoutUser(request):
     logout(request)
     return redirect('home')
 
-def registerPage(request):
-    form = UserCreationForm()
 
+def register_company(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CompanyRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.username = user.username.lower()
+            user.set_password(form.cleaned_data['password'])
             user.save()
-            login(request, user)
-            return redirect('home')
-        else:
-            messages.error(request, 'An error occurred during registration')
 
+            company = Company(
+                user=user,
+                company_name=form.cleaned_data['company_name'],
+                email=form.cleaned_data['email']
+            )
+            company.save()
+
+            # Отправка письма админу
+            send_mail(
+                'Новая регистрация компании',
+                f'Компания {company.company_name} ждёт одобрения.',
+                'from@example.com',  # Замените на ваш email
+                ['kseniakhlopovatusur@mail.ru'],  # Email админа
+            )
+
+            messages.success(request, 'Ваш запрос на регистрацию отправлен.')
+            return redirect('home')  # Измените на нужный адрес после регистрации
+    else:
+        form = CompanyRegistrationForm()
     return render(request, 'mainapp/login_register.html', {'form': form})
+
+
+
 def home(request):
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     rooms = Room.objects.filter(
@@ -87,6 +106,10 @@ def room(request, pk):
     context = {'room': room, 'participants': participants}
     return render(request, 'mainapp/room.html', context)
 
+def userProfile(request):
+    context = {}
+    return render(request, 'base/profile.html', context)
+
 @login_required(login_url='login')
 def createRoom(request):
     form = RoomForm()
@@ -97,9 +120,7 @@ def createRoom(request):
     if request.method == 'POST':
         form = RoomForm(request.POST, request.FILES)
         if form.is_valid():
-            room = form.save(commit=False)
-            room.host = request.user  # Устанавливаем хоста как текущего пользователя
-            room.save()
+            form.save()
             return redirect('home')
 
     context = {'form': form}
@@ -110,7 +131,7 @@ def updateRoom(request, pk):
     room = Room.objects.get(id=pk)
     form = RoomForm(instance=room)
 
-    if request.user != room.host:
+    if request.user != room.host and not request.user.is_superuser:
         return HttpResponse('You are not allowed here')
 
     if request.method == 'POST':
@@ -126,7 +147,7 @@ def updateRoom(request, pk):
 def deleteRoom(request, pk):
     room = Room.objects.get(id=pk)
 
-    if request.user != room.host:
+    if request.user != room.host and not request.user.is_superuser:
         return HttpResponse('You are not allowed here')
 
     if request.method == 'POST':

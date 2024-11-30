@@ -3,64 +3,67 @@
 {% block content %}
 
 <style>
-    .home-container{
+    .home-container {
         display: grid;
         grid-template-columns: 1fr 3fr 1fr;
     }
-</style>
 
+    .posts-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); /* Three equal columns */
+        gap: 20px; /* Space between columns */
+    }
+
+</style>
 
 <div class="home-container">
 
     <div>
-        <h3>Browse Topics</h3>
+        <h3>Все темы</h3>
         <hr>
 
         <div>
-            <a href="{% url 'home' %}">All</a>
+            <a href="{% url 'home' %}">Все</a>
         </div>
 
         {% for topic in topics %}
         <div>
-            <a href="{% url 'home' %}?q={{topic.name}}">{{ topic.name }}</a>
+            <a href="{% url 'home' %}?q={{ topic.name }}">{{ topic.name }}</a>
         </div>
         {% endfor %}
     </div>
 
-
     <div>
-        <h5>{{room_count}} постов найдено</h5>
-        <a href="{% url 'create-room' %}">Create room</a>
+        <h5>{{ room_count }} постов найдено</h5>
+        <a href="{% url 'create-room' %}">Новый пост</a>
 
-        <div>
+        <div class="posts-container">
             {% for room in rooms %}
-            <div>
-                <span>@{{room.host.username}}</span> <!-- Отображаем имя автора -->
-                <small>Опубликовано: {{ room.created|date:"Y-m-d" }}</small> <!-- Отображаем дату создания -->
-
-                <h5>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></h5>
-
+            <div class="post">
+                <hr>
+                <a href="{% url 'update-room' room.id %}">Редактировать пост</a>
+                <a href="{% url 'delete-room' room.id %}">Удалить пост</a>
                 <div>
-                    <p>{{room.description}}</p> <!-- Отображаем описание -->
+                    <span>@{{ room.host.username }}</span>
+                    <small>Опубликовано: {{ room.created|date:"Y-m-d" }}</small>
+                    <h5><a href="{% url 'room' room.id %}">{{ room.name }}</a></h5>
 
                     {% if room.image %}
-                    <p>{{ room.image.url }}</p>
-                        <img src="{{ room.image.url | default_if_none:'#' }}" alt="Room Image" style="max-width: 100px;"> <!-- Отображаем изображение -->
+                    <img src="{{ room.image.url }}" alt="{{ room.name }}" style="max-width: 200px; max-height: 200px;">
                     {% endif %}
-                </div>
 
-                <small>{{room.topic.name}}</small>
+                    <div>
+                        <p>{{ room.description }}</p>
+                    </div>
+
+                </div>
                 <hr>
             </div>
-
             {% endfor %}
         </div>
 
     </div>
 
-
 </div>
-
-
 
 {% endblock content %}
